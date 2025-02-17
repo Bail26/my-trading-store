@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from "@/store/cartstore";
 import loadRazorpay from "@/utils/razorpay";
 import VideoGallery from "@/components/VideoGallery";
 import ProductList from "@/components/ProductList"; // Import the new ProductList component

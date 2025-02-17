@@ -8,7 +8,7 @@ import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { Youtube, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore } from "@/store/cartstore";
 
 // Sample Products
 const products = [
