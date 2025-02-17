@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes smoothMarquee {
+  from { transform: translateX(100%); }
+  to { transform: translateX(-100%); }
+}
+
+.marquee {
+  display: flex;
+  gap: 50px;
+  animation: smoothMarquee 15s linear infinite; /* 👈 Adjust speed here */
+}
+
+.marquee-text {
+  white-space: nowrap;
+  padding-right: 50px; /* Extra spacing for smooth transition */
+}
