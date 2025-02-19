@@ -5,10 +5,9 @@ import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/store/cartstore";
 import loadRazorpay from "@/utils/razorpay";
+import VideoGallery from "@/components/VideoGallery";
+import ProductList from "@/components/ProductList";
 import { useState } from "react";
-
-const VideoGallery = dynamic(() => import("@/components/VideoGallery"), { ssr: false });
-const ProductList = dynamic(() => import("@/components/ProductList"), { ssr: false });
 
 export default function Home() {
   const { cart } = useCartStore();

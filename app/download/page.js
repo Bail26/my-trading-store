@@ -5,35 +5,57 @@ import { useEffect, useState, Suspense } from "react";
 import { notFound } from "next/navigation"; // ✅ Prevents pre-render errors
 
 const productDownloads = {
-  "1": { name: "Product 1", file: "/downloads/product1.zip" },
-  "2": { name: "Product 2", file: "/downloads/product2.zip" },
+  "1": { name: "Product 1", file: "/downloads/product1.zip", size: "2MB" },
+  "2": { name: "Product 2", file: "/downloads/product2.zip", size: "5MB" },
 };
 
 function DownloadContent() {
   const searchParams = useSearchParams();
   const [downloads, setDownloads] = useState(null);
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState(null); // ✅ Use `null` for initial loading state
+  const userId = "user123"; // 🔒 Replace with real authenticated user ID from session/auth
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const paymentSuccess = localStorage.getItem("paymentSuccess");
-
-      if (!paymentSuccess) {
-        notFound(); // 🚀 Redirect to 404 if no payment
+    async function verifyPurchase() {
+      const productIds = searchParams.get("products")?.split(",") ?? [];
+    
+      if (!userId || productIds.length === 0) {
+        setIsVerified(false);
         return;
       }
-
-      const productIds = searchParams.get("products")?.split(",") || [];
-      const downloadLinks = productIds
-        .map((id) => productDownloads[id])
-        .filter(Boolean);
-
-      setDownloads(downloadLinks);
-      setIsVerified(true);
+    
+      try {
+        // ✅ Fetch from the App Router API route
+        const res = await fetch(`/api/verify-purchase?userId=${userId}&products=${productIds.join(",")}`);
+        const data = await res.json();
+    
+        if (!data.success) {
+          setIsVerified(false);
+        } else {
+          const downloadLinks = productIds
+            .map((id) => productDownloads[id])
+            .filter(Boolean);
+          setDownloads(downloadLinks);
+          setIsVerified(true);
+        }
+      } catch (error) {
+        console.error("Verification failed:", error);
+        setIsVerified(false);
+      }
     }
+
+    verifyPurchase();
   }, [searchParams]);
 
-  if (!isVerified) return <p className="text-center mt-6">Verifying purchase...</p>;
+  // ✅ Redirect to 404 only after verification is complete
+  if (isVerified === false) {
+    notFound();
+    return null;
+  }
+
+  if (isVerified === null) {
+    return <p className="text-center mt-6">Verifying purchase...</p>;
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto text-center">
@@ -47,9 +69,11 @@ function DownloadContent() {
               key={index}
               href={file.file}
               download
+              rel="noopener noreferrer"
               className="block bg-blue-500 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-600"
+              aria-label={`Download ${file.name} (${file.size || "unknown size"})`}
             >
-              Download {file.name}
+              Download {file.name} {file.size ? `(${file.size})` : ""}
             </a>
           ))}
         </div>
