@@ -20,6 +20,29 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Sticky Header */
+.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 50; /* Ensures it's always above other elements */
+}
+
+/* Adjusted Marquee to prevent overlap */
+.marquee-container {
+  width: 100vw;
+  max-width: none;
+  margin-top: 7px; /* Keeps space below the header */
+  overflow: hidden;
+  white-space: nowrap;
+  background: linear-gradient(to right, #ff3c00, #ffcc00, #ff3c00);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 8px 0;
+  position: relative;
+}
+
+/* Smooth Marquee Animation */
 @keyframes smoothMarquee {
   from {
     transform: translateX(100%);
@@ -29,21 +52,10 @@ body {
   }
 }
 
-.marquee-container {
-  overflow: hidden;
-  white-space: nowrap;
-  position: relative;
-  width: 100%;
-  background: linear-gradient(to right, #ff3c00, #ffcc00, #ff3c00); /* Smooth gradient */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  padding: 8px 2px;
-}
-
 .marquee {
   display: flex;
   gap: 50px;
-  animation: smoothMarquee 15s linear infinite; /* 👈 Speed adjustable */
+  animation: smoothMarquee 15s linear infinite;
 }
 
 .marquee-content {
@@ -52,5 +64,10 @@ body {
   font-weight: bold;
   text-transform: uppercase;
   color: white;
-  padding-right: 50px; /* Ensures smooth looping */
+  padding-right: 50px;
+}
+
+/* Adjusted padding to reduce space between marquee and product grid */
+main {
+  padding-top: 105px; /* Reduced from 120px to bring ProductList closer */
 }

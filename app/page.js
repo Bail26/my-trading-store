@@ -29,67 +29,78 @@ export default function Home() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto bg-gray-100 min-h-screen">
-      {/* Header */}
-      <header className="flex items-center justify-between bg-gradient-to-r from-white via-gray-500 to-black text-white px-6 py-4 rounded-lg shadow-md w-full">
-        <div className="flex items-center gap-3">
-          <Image
-            src="/logo.png"
-            width={60}
-            height={60}
-            alt="Logo"
-            loading="lazy"
-            priority={false}
-            className="drop-shadow-lg brightness-110 contrast-125"
-          />
-          <h1 className="text-3xl font-bold tracking-wide bg-gradient-to-r from-black via-orange-500 to-white bg-clip-text text-transparent drop-shadow-lg">
-            Trading Ocean Store
-          </h1>
-        </div>
+    <div className="bg-gray-100 min-h-screen">
+      {/* Sticky Header */}
+      <header className="sticky top-0 left-0 w-full bg-gradient-to-r from-white via-gray-500 to-black text-white shadow-md py-4 z-50">
+        <div className="flex items-center justify-between w-full px-6">
+          {/* Logo & Store Name - Completely Left Aligned */}
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              width={60}
+              height={60}
+              alt="Logo"
+              loading="lazy"
+              priority={false}
+              className="drop-shadow-lg brightness-110 contrast-125"
+            />
+            <h1 className="text-3xl font-bold tracking-wide bg-gradient-to-r from-black via-orange-500 to-white bg-clip-text text-transparent drop-shadow-lg">
+              Trading Ocean Store
+            </h1>
+          </div>
 
-        <div className="flex items-center gap-6">
-          {cart.length > 0 && (
-            <>
-              <div className="bg-black text-white px-4 py-2 rounded-lg shadow-md text-lg font-semibold">
-                ₹{totalPrice}
+          {/* Cart, Price & Buy Button - Completely Right Aligned */}
+          <div className="flex items-center gap-6">
+            {cart.length > 0 && (
+              <>
+                <div className="bg-black text-white px-4 py-2 rounded-lg shadow-md text-lg font-semibold">
+                  ₹{totalPrice}
+                </div>
+
+                <button
+                  onClick={handlePayment}
+                  className={`px-5 py-2 rounded-lg shadow-md font-semibold transition-all ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-green-500 hover:bg-green-600 text-white"
+                  }`}
+                  disabled={loading}
+                  aria-busy={loading}
+                >
+                  {loading ? "Processing..." : "Buy Now"}
+                </button>
+              </>
+            )}
+
+            {cart.length > 0 && (
+              <div className="relative">
+                <ShoppingCart size={28} />
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">
+                  {cart.length}
+                </span>
               </div>
-
-              <button
-                onClick={handlePayment}
-                className={`px-5 py-2 rounded-lg shadow-md font-semibold transition-all ${
-                  loading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-green-500 hover:bg-green-600 text-white"
-                }`}
-                disabled={loading}
-                aria-busy={loading}
-              >
-                {loading ? "Processing..." : "Buy Now"}
-              </button>
-            </>
-          )}
-
-          {cart.length > 0 && (
-            <div className="relative">
-              <ShoppingCart size={28} />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">
-                {cart.length}
-              </span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </header>
 
-      {/* Marquee */}
-      <div className="marquee-container mt-4">
+      {/* Marquee Section Below Sticky Header */}
+      {/* Marquee Section Below Sticky Header */}
+      <div className="marquee-container">
         <div className="marquee">
+          {/* Duplicate content for seamless scrolling effect */}
+          <span className="marquee-content">⚡ Instant Download After Payment is Done ⚡</span>
+          <span className="marquee-content">⚡ Instant Download After Payment is Done ⚡</span>
           <span className="marquee-content">⚡ Instant Download After Payment is Done ⚡</span>
           <span className="marquee-content">⚡ Instant Download After Payment is Done ⚡</span>
         </div>
       </div>
 
-      <ProductList />
-      <VideoGallery />
+      {/* Product List & Video Gallery - Unaffected */}
+      <main className="max-w-5xl mx-auto p-6 pt-12">
+        <ProductList />
+        <VideoGallery />
+      </main>
     </div>
   );
 }
