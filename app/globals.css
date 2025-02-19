@@ -21,17 +21,36 @@ body {
 }
 
 @keyframes smoothMarquee {
-  from { transform: translateX(100%); }
-  to { transform: translateX(-100%); }
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+  background: linear-gradient(to right, #ff3c00, #ffcc00, #ff3c00); /* Smooth gradient */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 8px 2px;
 }
 
 .marquee {
   display: flex;
   gap: 50px;
-  animation: smoothMarquee 15s linear infinite; /* 👈 Adjust speed here */
+  animation: smoothMarquee 15s linear infinite; /* 👈 Speed adjustable */
 }
 
-.marquee-text {
+.marquee-content {
   white-space: nowrap;
-  padding-right: 50px; /* Extra spacing for smooth transition */
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
+  padding-right: 50px; /* Ensures smooth looping */
 }
