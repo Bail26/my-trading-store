@@ -1,16 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model Product {
+  id            Int      @id @default(autoincrement())
+  name          String
+  price         Float
+  images        String   @default("[]")
+  rating        Float    @default(0)  // Stores the average rating
+  downloadCount Int      @default(0)
+  ratings       Rating[] // Relation to store multiple user ratings
+  orders        OrderProduct[] // Many-to-many relation with orders
 }
 
-model Review {
-  id        Int      @id @default(autoincrement())
+model Rating {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
   productId Int
-  username  String
-  comment   String
-  createdAt DateTime @default(now())
+  userId    String  // Unique user identifier
+  value     Float   // Rating value (1-5)
+
+  @@unique([productId, userId]) // Ensures each user rates a product only once
+}
+
+model Order {
+  id        String         @id @default(uuid()) // Unique order ID
+  createdAt DateTime       @default(now())
+  products  OrderProduct[] // Relation to link multiple products to orders
+}
+
+model OrderProduct {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
 }

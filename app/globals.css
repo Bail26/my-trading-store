@@ -20,26 +20,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Sticky Header */
-.sticky-header {
-  position: fixed;
+/* Sticky Header + Marquee */
+.sticky {
+  position: sticky;
   top: 0;
   left: 0;
-  width: 100vw;
-  z-index: 50; /* Ensures it's always above other elements */
+  width: 100%;
+  z-index: 50;
 }
 
-/* Adjusted Marquee to prevent overlap */
+/* Adjusted Marquee to remain sticky */
 .marquee-container {
-  width: 100vw;
-  max-width: none;
-  margin-top: 7px; /* Keeps space below the header */
+  width: 100%;
   overflow: hidden;
   white-space: nowrap;
-  background: linear-gradient(to right, #ff3c00, #ffcc00, #ff3c00);
+  background: linear-gradient(to right, #928f8e, #000000, #817b79);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   padding: 8px 0;
-  position: relative;
+  margin-top: 5px;
 }
 
 /* Smooth Marquee Animation */
@@ -65,9 +63,4 @@ body {
   text-transform: uppercase;
   color: white;
   padding-right: 50px;
-}
-
-/* Adjusted padding to reduce space between marquee and product grid */
-main {
-  padding-top: 105px; /* Reduced from 120px to bring ProductList closer */
 }

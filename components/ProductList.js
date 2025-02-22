@@ -10,31 +10,55 @@ import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { Youtube, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/cartstore";
 
-// Sample Products
-const products = [
-  {
-    id: 1,
-    name: "Trading Ocean Open Interest Sheet",
-    price: 1,
-    images: ["/product1-1.jpg", "/product1-2.jpg", "/product1-3.jpg"],
-    rating: 4.5,
-    youtubeLink: "https://www.youtube.com/watch?v=pLPXz2lsyvY",
-  },
-  {
-    id: 2,
-    name: "Trading Journal 2.0",
-    price: 1,
-    images: ["/product2-1.jpg", "/product2-2.jpg", "/product2-3.jpg"],
-    rating: 4.8,
-    youtubeLink: "https://www.youtube.com/watch?v=aKFlAf6nHVU",
-  },
-];
-
 export default function ProductList() {
   const { cart, addToCart, removeFromCart } = useCartStore();
+  const [products, setProducts] = useState([]);
+  const [userRatings, setUserRatings] = useState({}); // Store user ratings locally
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentProduct, setCurrentProduct] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [ratingSubmitting, setRatingSubmitting] = useState(null);
+
+  // Fetch products and user ratings from local storage
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+
+        // Load user ratings from local storage
+        const storedRatings = JSON.parse(localStorage.getItem("userRatings")) || {};
+        setUserRatings(storedRatings);
+      });
+  }, []);
+
+  // Submit user rating
+  const submitRating = async (productId, value) => {
+    setUserRatings((prev) => ({ ...prev, [productId]: value })); // Update UI instantly
+    setRatingSubmitting(productId);
+
+    const res = await fetch("/api/rating", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, value, userId: "guest" }), // Replace "guest" with actual user ID if available
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId ? { ...product, rating: data.newRating } : product
+        )
+      );
+
+      // Save user rating in local storage
+      const newRatings = { ...userRatings, [productId]: value };
+      localStorage.setItem("userRatings", JSON.stringify(newRatings));
+    }
+
+    setRatingSubmitting(null);
+  };
 
   // Handle Keyboard Navigation (Esc, Left, Right)
   useEffect(() => {
@@ -51,23 +75,25 @@ export default function ProductList() {
   const openImage = (product, index) => {
     setCurrentProduct(product);
     setCurrentIndex(index);
-    setSelectedImage(product.images[index]);
+    setSelectedImage(JSON.parse(product.images)[index]);
   };
 
   // Next Image in Zoom
   const handleNextImage = () => {
     if (!currentProduct) return;
-    const nextIndex = (currentIndex + 1) % currentProduct.images.length;
+    const images = JSON.parse(currentProduct.images);
+    const nextIndex = (currentIndex + 1) % images.length;
     setCurrentIndex(nextIndex);
-    setSelectedImage(currentProduct.images[nextIndex]);
+    setSelectedImage(images[nextIndex]);
   };
 
   // Previous Image in Zoom
   const handlePrevImage = () => {
     if (!currentProduct) return;
-    const prevIndex = (currentIndex - 1 + currentProduct.images.length) % currentProduct.images.length;
+    const images = JSON.parse(currentProduct.images);
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
     setCurrentIndex(prevIndex);
-    setSelectedImage(currentProduct.images[prevIndex]);
+    setSelectedImage(images[prevIndex]);
   };
 
   // Close Zoom
@@ -76,13 +102,10 @@ export default function ProductList() {
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
       {products.map((product) => (
-        <div
-          key={product.id}
-          className="bg-white border border-gray-200 shadow-lg rounded-lg p-4 transition-all hover:scale-105 hover:shadow-xl"
-        >
+        <div key={product.id} className="bg-white border border-gray-200 shadow-lg rounded-lg p-4">
           {/* Image Carousel */}
           <Swiper modules={[Pagination]} pagination={{ clickable: true }} loop>
-            {product.images.map((img, idx) => (
+            {JSON.parse(product.images)?.map((img, idx) => (
               <SwiperSlide key={idx}>
                 <Image
                   src={img}
@@ -91,7 +114,7 @@ export default function ProductList() {
                   alt={`${product.name} image ${idx + 1}`}
                   className="rounded-lg mx-auto cursor-pointer hover:scale-105 transition-transform duration-300"
                   unoptimized
-                  onClick={() => openImage(product, idx)} // Open zoom mode
+                  onClick={() => openImage(product, idx)} // ✅ Add this to enable zooming
                 />
               </SwiperSlide>
             ))}
@@ -99,26 +122,43 @@ export default function ProductList() {
 
           {/* Product Info */}
           <div className="mt-4 text-center">
-            <h2 className="text-lg font-semibold text-gray-900">{product.name}</h2>
-            <p className="flex justify-center items-center text-yellow-500 mt-1">
-              {Array.from({ length: 5 }).map((_, i) => {
-                return product.rating >= i + 1 ? (
-                  <FaStar key={i} />
-                ) : product.rating > i ? (
-                  <FaStarHalfAlt key={i} />
-                ) : (
-                  <FaRegStar key={i} />
-                );
-              })}
-            </p>
+            <h2 className="text-lg font-semibold">{product.name}</h2>
+
+            {/* Interactive Rating System */}
+            <div className="flex justify-center items-center text-yellow-500 mt-1 space-x-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <button
+                  key={i}
+                  disabled={ratingSubmitting === product.id}
+                  onClick={() => submitRating(product.id, i + 1)}
+                  className="focus:outline-none"
+                >
+                  {/* Show user's selected rating if they have rated, otherwise show average */}
+                  {userRatings[product.id] >= i + 1 ? (
+                    <FaStar />
+                  ) : product.rating >= i + 1 ? (
+                    <FaStar />
+                  ) : product.rating > i ? (
+                    <FaStarHalfAlt />
+                  ) : (
+                    <FaRegStar />
+                  )}
+                </button>
+              ))}
+            </div>
+            <p className="text-sm text-gray-500">Click a star to rate</p>
+
             <p className="text-blue-700 font-bold text-xl mt-2">₹{product.price}</p>
+            <p className="text-gray-600 mt-1">Downloads: {product.downloadCount}</p>
           </div>
 
           {/* Buttons */}
           <div className="flex justify-between items-center mt-3 px-2">
-            <a href={product.youtubeLink} target="_blank" className="text-blue-500">
-              <Youtube size={24} />
-            </a>
+            {product.youtubeLink && (
+              <a href={product.youtubeLink} target="_blank" className="text-blue-500">
+                <Youtube size={24} />
+              </a>
+            )}
 
             {cart.find((item) => item.id === product.id) ? (
               <button
